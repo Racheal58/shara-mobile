@@ -1,0 +1,6 @@
+/node_modules
+/documentation
+/coverage
+/babel.config.js
+/e2e
+/tests

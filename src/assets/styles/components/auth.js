@@ -1,0 +1,67 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+  registrationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    paddingTop: 23,
+    paddingHorizontal: 10
+  },
+  loginContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    color: '#023047',
+    fontSize: 60,
+    fontStyle: 'normal',
+    fontWeight: '800',
+    letterSpacing: 0.32,
+    lineHeight: 64,
+    marginBottom: 15,
+    textAlign: 'center',
+    paddingTop: 20,
+  },
+  subText: {
+    color: '#023047',
+    fontSize: 15.75,
+    fontStyle: 'normal',
+    letterSpacing: 0,
+    lineHeight: 19.5,
+    marginBottom: 45,
+    textAlign: 'center',
+    margin: 4,
+  },
+  textInput: {
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#023047',
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
+    marginBottom: 30,
+    padding: '0.375% 0.75% 0.375% 0%',
+    color: '#023047',
+    width: '100%',
+    height: 44,
+  },
+  registrationBtn: {
+    width: '100%',
+    backgroundColor: '#023047',
+    borderRadius: 6,
+    height: 50,
+    justifyContent: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  buttonText: {
+    fontSize: 15,
+    fontWeight: '300',
+    lineHeight: 24,
+    letterSpacing: 1,
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+});
