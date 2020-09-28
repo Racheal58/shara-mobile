@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import MainTabNavigator from './MainTabNavigator';
 import LoginNavigator from '../auth/LoginNavigator';
 import HomeNavigator from '../home/HomeNavigator';
+import ProfilesNavigator from '../profile/ProfileNavigator';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ class AppNavigator extends React.Component {
           )}
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen name="HomeScreens" component={HomeNavigator} />
+          <Stack.Screen name="ProfileScreens" component={ProfilesNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
     );

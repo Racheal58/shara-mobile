@@ -8,71 +8,95 @@ import {
   Image,
   TextInput,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 
 import globalStyles from '../../assets/styles/base/global';
 import homeStyles from '../../assets/styles/components/home';
 
+import { addProductToOrder, getUserOrder } from '../../stores/modules/products';
 class SingleProductScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      disabled: true,
+      quantity: 0,
+    };
   }
+  componentDidMount = async () => {
+    await this.props.getUserOrder();
+  };
 
-  render() {
+  componentDidUpdate = () => {
+    if (
+      (this.state.quantity === 0 || this.state.quantity === '') &&
+      this.state.disabled === false
+    ) {
+      this.setState({ disabled: true });
+    }
+  };
+
+  handleInputChange = (type, value) => {
+    this.setState({ [type]: value, disabled: false });
+  };
+
+  addProductToCart = async () => {
+    const { quantity } = this.state;
     const {
-      navigation,
       route: {
         params: {
           data: { product },
         },
       },
     } = this.props;
+    await this.props.addProductToOrder({
+      ...product,
+      quantity: quantity === 0 ? 1 : quantity,
+    });
+    await this.setState({ quantity: 1, disabled: true });
+  };
+
+  render() {
+    const {
+      navigation,
+      cartLength,
+      isLoading,
+      route: {
+        params: {
+          data: { product },
+        },
+      },
+    } = this.props;
+    const { disabled, quantity } = this.state;
+
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: '#ffffff',
-        }}
-      >
+      <View style={homeStyles.cartContainer}>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={globalStyles.container}>
-            <View style={{ marginBottom: 10 }}>
+            <View style={homeStyles.backButtonHeader}>
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
                 style={{ width: 90 }}
               >
-                <View
-                  style={{
-                    color: '#303030',
-                    fontFamily: 'Poppins-semi-bold',
-                    fontSize: 14,
-                    height: 50,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: '#303030',
-                      fontFamily: 'Poppins-semi-bold',
-                      fontSize: 30,
-                    }}
-                  >
-                    {'< '}
-                  </Text>
-                  <Text
-                    style={{
-                      color: '#303030',
-                      fontFamily: 'Poppins-semi-bold',
-                      fontSize: 20,
-                    }}
-                  >
-                    Back
-                  </Text>
+                <View style={homeStyles.backButton}>
+                  <Text style={homeStyles.backButtonArrow}>{'< '}</Text>
+                  <Text style={homeStyles.backButtonText}>Back</Text>
                 </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('HomeScreens', {
+                    screen: 'CartScreen',
+                  })
+                }
+                style={homeStyles.cartButton}
+              >
+                <FontAwesomeIcon icon={faBoxOpen} color={'#023047'} size={50} />
+                <Text style={homeStyles.cartLength}>{cartLength}</Text>
               </TouchableOpacity>
             </View>
 
@@ -93,23 +117,31 @@ class SingleProductScreen extends React.Component {
                   {product.description}
                 </Text>
                 <Text style={homeStyles.singleProductPrice}>
-                  &#8358;{product.price}
+                  &#8358;{parseInt(product.price).toLocaleString()}
                 </Text>
                 <View style={homeStyles.inputGroup}>
                   <Text style={homeStyles.qunatityInputLabel}>Quantity:</Text>
                   <TextInput
-                    keyboardType="numeric"
-                    value={this.state.myNumber}
+                    keyboardType="number-pad"
+                    value={quantity}
                     maxLength={10}
                     style={homeStyles.qunatityInput}
+                    onChangeText={text =>
+                      this.handleInputChange('quantity', text)
+                    }
                   />
                 </View>
 
                 <TouchableOpacity
-                  style={homeStyles.singleProductAddToCartButton}
+                  style={{
+                    ...homeStyles.singleProductAddToCartButton,
+                    backgroundColor: disabled ? '#c4c4c4' : '#023047',
+                  }}
+                  disabled={disabled}
+                  onPress={() => this.addProductToCart()}
                 >
                   <Text style={homeStyles.singleProductAddToCartButtonText}>
-                    Add to Cart
+                    {isLoading ? <ActivityIndicator /> : 'Add to Cart'}
                   </Text>
                 </TouchableOpacity>
               </KeyboardAvoidingView>
@@ -121,7 +153,11 @@ class SingleProductScreen extends React.Component {
   }
 }
 
+const mapStateToProps = ({ product: { isLoading, cartLength } }) => ({
+  isLoading,
+  cartLength,
+});
 export default connect(
-  null,
-  {},
+  mapStateToProps,
+  { addProductToOrder, getUserOrder },
 )(SingleProductScreen);

@@ -7,7 +7,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     height: '100%',
     paddingTop: 23,
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   loginContainer: {
     flex: 1,
@@ -63,5 +63,14 @@ export default StyleSheet.create({
     letterSpacing: 1,
     color: '#FFFFFF',
     textAlign: 'center',
+  },
+  loadingContainer: {
+    position: 'absolute',
+    backgroundColor: '#f2f2f2',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

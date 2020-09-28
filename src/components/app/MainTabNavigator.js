@@ -2,7 +2,7 @@ import React from 'react';
 import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import ProfilesNavigator from '../profile/ProfileNavigator';
+import ProfileHomeScreen from '../profile/ProfileHomeScreen';
 import HomeDefaultScreen from '../home/HomeDefaultScreen';
 
 import appStyles from '../../assets/styles/components/app';
@@ -38,7 +38,7 @@ export default () => (
     />
     <Tab.Screen
       name="Profile"
-      component={ProfilesNavigator}
+      component={ProfileHomeScreen}
       options={{
         tabBarIcon: ({ focused }) => (
           <Image

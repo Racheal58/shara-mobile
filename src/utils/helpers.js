@@ -3,4 +3,16 @@ const truncateString = (str, count) => {
   return `${str.slice(0, count + 1)}...`;
 };
 
-export { truncateString };
+const errorHandler = error => {
+  if (error.response) {
+    return error.response.data.message;
+  } else if (error.request) {
+    return error.request;
+  } else if (error.message) {
+    return error.message;
+  } else {
+    return error;
+  }
+};
+
+export { truncateString, errorHandler };
