@@ -29,6 +29,8 @@ import homeStyles from '../../assets/styles/components/home';
 import { getOrders, getUserOrder } from '../../stores/modules/products';
 import { logout } from '../../stores/modules/auth';
 
+import { truncateString } from '../../utils/helpers';
+
 class ProfileHomeScreen extends React.Component {
   state = {
     user: {},
@@ -93,26 +95,51 @@ class ProfileHomeScreen extends React.Component {
             <View style={homeStyles.itemCardContainer}>
               <View style={homeStyles.itemCard}>
                 <View style={homeStyles.userIcon}>
-                  <FontAwesomeIcon icon={faUser} color={'#023047'} size={50} />
+                  <FontAwesomeIcon icon={faUser} color={'#023047'} size={45} />
                 </View>
-                <View style={homeStyles.textSection}>
-                  <Text
-                    style={[homeStyles.singleProductName, { marginTop: 20 }]}
-                  >
-                    {user.first_name} {user.last_name}
-                  </Text>
-                  <Text style={homeStyles.singleProductDescription}>
-                    {user.email}
-                  </Text>
-                  <Text
-                    style={[
-                      homeStyles.singleProductDescription,
-                      { marginTop: 10 },
-                    ]}
-                  >
-                    {user.phone_number}
-                  </Text>
-                </View>
+                {Object.keys(user).length > 0 && (
+                  <View style={homeStyles.textSection}>
+                    <Text
+                      style={[
+                        homeStyles.singleProductName,
+                        {
+                          marginTop: 20,
+                          marginBottom: 10,
+                          fontSize: 18,
+                          lineHeight: 20,
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {Object.keys(user).length > 0 &&
+                        user.first_name.charAt(0).toUpperCase()}
+                      {'. '}
+                      {truncateString(
+                        `${user.last_name.replace(
+                          user.last_name[0],
+                          user.last_name[0].toUpperCase(),
+                        )}`,
+                        10,
+                      )}
+                    </Text>
+                    <Text
+                      style={{
+                        ...homeStyles.singleProductDescription,
+                        fontSize: 12,
+                      }}
+                    >
+                      {user.email}
+                    </Text>
+                    <Text
+                      style={[
+                        homeStyles.singleProductDescription,
+                        { marginTop: 5, fontSize: 12 },
+                      ]}
+                    >
+                      {user.phone_number}
+                    </Text>
+                  </View>
+                )}
                 <View style={homeStyles.signOutContainer}>
                   <TouchableOpacity
                     onPress={() => this.handleLogout()}
@@ -144,10 +171,9 @@ class ProfileHomeScreen extends React.Component {
                     ]}
                     key={order._id}
                     onPress={async () => {
-                      await this.props.getUserOrder(order);
                       await navigation.navigate('ProfileScreens', {
                         screen: 'OrderScreen',
-                        params: { data: { order, from: 'profile' } },
+                        params: { data: { order, completed: true } },
                       });
                     }}
                   >

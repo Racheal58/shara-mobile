@@ -29,22 +29,35 @@ export const getProducts = () => async dispatch => {
     dispatch({ type: GET_PRODUCTS_SUCCESS, payload: products });
   } catch (error) {
     const err = errorHandler(error);
-    Alert.alert(err);
+    Alert.alert(err ? err : 'An error occured');
     dispatch({ type: REQUEST_ERROR, payload: err });
   }
 };
 
-export const addProductToOrder = product => async dispatch => {
+export const addProductToOrder = (product, orders) => async dispatch => {
   try {
     dispatch({ type: REQUEST_PROCCESS });
     const {
       data: { order },
     } = await addProductToOrderRequest(product);
+    const isOrder = await orders.find(item => item._id === order._id);
+    if (!isOrder) {
+      orders.unshift(order);
+    } else {
+      let orderIndex;
+      orders.find((element, index) => {
+        if (element.id === order._id) return (orderIndex = index);
+      });
+      orders.splice(orderIndex, 1, order);
+    }
     Alert.alert('Item successfully added to cart');
-    dispatch({ type: ADD_PRODUCT_TO_ORDER_SUCCESS, payload: order });
+    dispatch({
+      type: ADD_PRODUCT_TO_ORDER_SUCCESS,
+      payload: { order, orders },
+    });
   } catch (error) {
     const err = errorHandler(error);
-    Alert.alert(err);
+    Alert.alert(err ? err : 'An error occured');
     dispatch({ type: REQUEST_ERROR, payload: err });
   }
 };
@@ -67,17 +80,27 @@ export const getUserOrder = userOrder => async dispatch => {
 export const removeProductFromOrder = (
   orderId,
   productId,
+  orders,
 ) => async dispatch => {
   try {
     dispatch({ type: REQUEST_PROCCESS });
     const {
       data: { order },
     } = await removeProductFromOrderRequest(orderId, productId);
-    dispatch({ type: REMOVE_PRODUCT_FROM_ORDER_SUCCESS, payload: order });
+
+    let orderIndex;
+    orders.find((element, index) => {
+      if (element.id === orderId) return (orderIndex = index);
+    });
+    orders.splice(orderIndex, 1, order);
+    dispatch({
+      type: REMOVE_PRODUCT_FROM_ORDER_SUCCESS,
+      payload: { order, orders },
+    });
     Alert.alert('Product has been successfully removed from order');
   } catch (error) {
     const err = errorHandler(error);
-    Alert.alert(err);
+    Alert.alert(err ? err : 'An error occured');
     dispatch({ type: REQUEST_ERROR, payload: err });
   }
 };
@@ -86,32 +109,48 @@ export const editProductQuantity = (
   orderId,
   productId,
   quantity,
+  orders,
 ) => async dispatch => {
   try {
     dispatch({ type: REQUEST_PROCCESS });
     const {
       data: { order },
     } = await editProductQuantityRequest(orderId, productId, quantity);
-    dispatch({ type: EDIT_PRODUCT_QUANTITY_SUCCESS, payload: order });
+
+    let orderIndex;
+    orders.find((element, index) => {
+      if (element.id === orderId) return (orderIndex = index);
+    });
+    orders.splice(orderIndex, 1, order);
+    dispatch({
+      type: EDIT_PRODUCT_QUANTITY_SUCCESS,
+      payload: { order, orders },
+    });
     Alert.alert('Product Quantity has been successfully edited');
   } catch (error) {
     const err = errorHandler(error);
-    Alert.alert(err);
+    Alert.alert(err ? err : 'An error occured');
     dispatch({ type: REQUEST_ERROR, payload: err });
   }
 };
 
-export const completeUserOrder = orderId => async dispatch => {
+export const completeUserOrder = (orderId, orders) => async dispatch => {
   try {
     dispatch({ type: REQUEST_PROCCESS });
     const {
       data: { order },
     } = await completeUserOrderRequest(orderId);
-    dispatch({ type: COMPLETE_USER_ORDER_SUCCESS, payload: order });
+
+    let orderIndex;
+    orders.find((element, index) => {
+      if (element.id === orderId) return (orderIndex = index);
+    });
+    orders.splice(orderIndex, 1, order);
+    dispatch({ type: COMPLETE_USER_ORDER_SUCCESS, payload: { order, orders } });
     Alert.alert('Your order has been successfully completed');
   } catch (error) {
     const err = errorHandler(error);
-    Alert.alert(err);
+    Alert.alert(err ? err : 'An error occured');
     dispatch({ type: REQUEST_ERROR, payload: err });
   }
 };
@@ -124,9 +163,8 @@ export const getOrders = () => async dispatch => {
     } = await getAllOrdersRequest();
     dispatch({ type: GET_ORDERS_SUCCESS, payload: orders });
   } catch (error) {
-    console.log(error);
     const err = errorHandler(error);
-    Alert.alert(err);
+    Alert.alert(err ? err : 'An error occured');
     dispatch({ type: REQUEST_ERROR, payload: err });
   }
 };
@@ -155,21 +193,37 @@ export const productsReducer = (state = DEFAULT_STATE, { type, payload }) => {
         products: payload,
       };
     case ADD_PRODUCT_TO_ORDER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        order: payload.order,
+        orders: payload.orders,
+        cartLength: payload.order.products.length,
+      };
     case COMPLETE_USER_ORDER_SUCCESS:
       return {
         ...state,
         isLoading: false,
-        order: payload,
-        cartLength: payload.products.length,
+        order: payload.order,
+        orders: payload.orders,
+        cartLength: 0,
+        userOrder: {},
       };
     case GET_USER_ORDER_SUCCESS:
-    case REMOVE_PRODUCT_FROM_ORDER_SUCCESS:
-    case EDIT_PRODUCT_QUANTITY_SUCCESS:
       return {
         ...state,
         isLoading: false,
         userOrder: payload,
         cartLength: payload.products.length,
+      };
+    case REMOVE_PRODUCT_FROM_ORDER_SUCCESS:
+    case EDIT_PRODUCT_QUANTITY_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        userOrder: payload.order,
+        orders: payload.orders,
+        cartLength: payload.order.products.length,
       };
     case GET_ORDERS_SUCCESS:
       return {

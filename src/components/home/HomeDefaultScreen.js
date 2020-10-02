@@ -73,10 +73,13 @@ class HomeDefaultScreen extends React.Component {
 
   addProductToCart = async () => {
     const { quantity, productToBeAddedToCart } = this.state;
-    await this.props.addProductToOrder({
-      ...productToBeAddedToCart,
-      quantity: quantity === 0 ? 1 : quantity,
-    });
+    await this.props.addProductToOrder(
+      {
+        ...productToBeAddedToCart,
+        quantity: quantity === 0 ? 1 : quantity,
+      },
+      this.props.orders,
+    );
     await this.setState({ quantity: 1, disabled: true, modalVisible: false });
   };
 
@@ -126,9 +129,9 @@ class HomeDefaultScreen extends React.Component {
                   </Text>
                   <TextInput
                     style={modalStyles.textInput}
-                    value={quantity}
+                    value={quantity.toString()}
                     autoCompleteType="name"
-                    keyboardType="number-pad"
+                    keyboardType={'numeric'}
                     onChangeText={text =>
                       this.handleInputChange('quantity', text)
                     }
@@ -232,10 +235,13 @@ class HomeDefaultScreen extends React.Component {
   }
 }
 
-const mapStateToProps = ({ product: { isLoading, products, cartLength } }) => ({
+const mapStateToProps = ({
+  product: { isLoading, products, cartLength, orders },
+}) => ({
   isLoading,
   products,
   cartLength,
+  orders,
 });
 
 export default connect(

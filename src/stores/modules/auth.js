@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 
 import { authenticationRequest, registrationRequest } from '../../api/auth';
 import { errorHandler } from '../../utils/helpers';
+import { http } from '../../api/client';
 
 const ACTION_PROCCESS = 'ACTION_PROCCESS';
 const AUTHENTICATION_SUCCESS = 'AUTHENTICATION_SUCCESS';
@@ -16,10 +17,10 @@ export const login = userObj => async dispatch => {
       data: { token, user },
     } = await authenticationRequest(userObj);
     await AsyncStorage.setItem('token', token);
+    http.defaults.headers.Authorization = `Bearer ${token}`;
     await AsyncStorage.setItem('user', JSON.stringify(user));
     dispatch({ type: AUTHENTICATION_SUCCESS, payload: user });
   } catch (error) {
-    console.log('error', error.response);
     const err = errorHandler(error);
     Alert.alert(err);
     dispatch({ type: ACTION_ERROR, payload: err });
@@ -33,6 +34,7 @@ export const register = userObj => async dispatch => {
       data: { token, user },
     } = await registrationRequest(userObj);
     await AsyncStorage.setItem('token', token);
+    http.defaults.headers.Authorization = `Bearer ${token}`;
     await AsyncStorage.setItem('user', JSON.stringify(user));
     dispatch({ type: AUTHENTICATION_SUCCESS, payload: user });
   } catch (error) {
@@ -48,7 +50,7 @@ export const logout = navigation => async dispatch => {
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
     await dispatch({ type: LOGOUT_SUCCESS });
-    await navigation.push('Auth', {
+    await navigation.replace('Auth', {
       screen: 'Login',
     });
   } catch (error) {

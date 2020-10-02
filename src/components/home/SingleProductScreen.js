@@ -52,10 +52,13 @@ class SingleProductScreen extends React.Component {
         },
       },
     } = this.props;
-    await this.props.addProductToOrder({
-      ...product,
-      quantity: quantity === 0 ? 1 : quantity,
-    });
+    await this.props.addProductToOrder(
+      {
+        ...product,
+        quantity: quantity === 0 ? 1 : quantity,
+      },
+      this.props.orders,
+    );
     await this.setState({ quantity: 1, disabled: true });
   };
 
@@ -122,8 +125,8 @@ class SingleProductScreen extends React.Component {
                 <View style={homeStyles.inputGroup}>
                   <Text style={homeStyles.qunatityInputLabel}>Quantity:</Text>
                   <TextInput
-                    keyboardType="number-pad"
-                    value={quantity}
+                    keyboardType={'numeric'}
+                    value={quantity.toString()}
                     maxLength={10}
                     style={homeStyles.qunatityInput}
                     onChangeText={text =>
@@ -153,9 +156,10 @@ class SingleProductScreen extends React.Component {
   }
 }
 
-const mapStateToProps = ({ product: { isLoading, cartLength } }) => ({
+const mapStateToProps = ({ product: { isLoading, cartLength, orders } }) => ({
   isLoading,
   cartLength,
+  orders,
 });
 export default connect(
   mapStateToProps,

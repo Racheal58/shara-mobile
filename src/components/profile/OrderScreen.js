@@ -34,6 +34,8 @@ class OrderScreen extends React.Component {
       quantity: 0,
       modalVisible: false,
       editProductId: 0,
+      userOrder: {},
+      cartLength: 0,
     };
   }
   componentDidMount = async () => {
@@ -41,15 +43,24 @@ class OrderScreen extends React.Component {
       props: {
         route: {
           params: {
-            data: { order, from },
+            data: { order, completed },
           },
         },
       },
     } = this;
-    if (from === 'profile') {
-      await this.props.getUserOrder(order);
+    if (completed) {
+      await this.setState(previousState => ({
+        ...previousState,
+        userOrder: order,
+        cartLength: order.products.length,
+      }));
     } else {
-      await this.props.getUserOrder();
+      await this.props.getUserOrder(order);
+      await this.setState(previousState => ({
+        ...previousState,
+        userOrder: this.props.userOrder,
+        cartLength: this.props.cartLength,
+      }));
     }
   };
 
@@ -67,7 +78,11 @@ class OrderScreen extends React.Component {
   };
 
   handleProductRemoval = async productId => {
-    this.props.removeProductFromOrder(this.props.userOrder._id, productId);
+    this.props.removeProductFromOrder(
+      this.props.userOrder._id,
+      productId,
+      this.props.orders,
+    );
   };
 
   handleEditQuantity = async () => {
@@ -75,6 +90,7 @@ class OrderScreen extends React.Component {
       this.props.userOrder._id,
       this.state.editProductId,
       this.state.quantity,
+      this.props.orders,
     );
     await this.setState(previousState => ({
       ...previousState,
@@ -88,19 +104,24 @@ class OrderScreen extends React.Component {
       ...previousState,
       isCompleteButtonDisabled: true,
     }));
-    await this.props.completeUserOrder(this.props.userOrder._id);
+    await this.props.completeUserOrder(
+      this.props.userOrder._id,
+      this.props.orders,
+    );
     this.props.navigation.navigate('Main', {
       screen: 'Profile',
     });
   };
 
   render() {
-    const { navigation, cartLength, isLoading, userOrder } = this.props;
+    const { navigation, isLoading } = this.props;
     const {
       disabled,
       quantity,
       modalVisible,
       isCompleteButtonDisabled,
+      userOrder,
+      cartLength,
     } = this.state;
 
     return (
@@ -134,9 +155,9 @@ class OrderScreen extends React.Component {
                   </Text>
                   <TextInput
                     style={modalStyles.textInput}
-                    value={quantity}
+                    value={quantity.toString()}
                     autoCompleteType="name"
-                    keyboardType="number-pad"
+                    keyboardType={'numeric'}
                     onChangeText={text =>
                       this.handleInputChange('quantity', text)
                     }
@@ -226,6 +247,7 @@ class OrderScreen extends React.Component {
                                   editProductId: item._id,
                                 });
                               }}
+                              disabled={isCompleteButtonDisabled}
                             >
                               <View style={homeStyles.editButtonIconSection}>
                                 <FontAwesomeIcon
@@ -245,6 +267,7 @@ class OrderScreen extends React.Component {
                               onPress={() =>
                                 this.handleProductRemoval(item._id)
                               }
+                              disabled={isCompleteButtonDisabled}
                             >
                               <Image
                                 source={require('../../assets/images/icons/error.png')}
@@ -290,11 +313,12 @@ class OrderScreen extends React.Component {
 }
 
 const mapStateToProps = ({
-  product: { isLoading, cartLength, userOrder },
+  product: { isLoading, cartLength, userOrder, orders },
 }) => ({
   userOrder,
   isLoading,
   cartLength,
+  orders,
 });
 export default connect(
   mapStateToProps,

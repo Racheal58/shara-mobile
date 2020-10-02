@@ -53,7 +53,11 @@ class CartScreen extends React.Component {
   };
 
   handleProductRemoval = async productId => {
-    this.props.removeProductFromOrder(this.props.userOrder._id, productId);
+    this.props.removeProductFromOrder(
+      this.props.userOrder._id,
+      productId,
+      this.props.orders,
+    );
   };
 
   handleEditQuantity = async () => {
@@ -61,6 +65,7 @@ class CartScreen extends React.Component {
       this.props.userOrder._id,
       this.state.editProductId,
       this.state.quantity,
+      this.props.orders,
     );
     await this.setState(previousState => ({
       ...previousState,
@@ -74,7 +79,10 @@ class CartScreen extends React.Component {
       ...previousState,
       isCompleteButtonDisabled: true,
     }));
-    await this.props.completeUserOrder(this.props.userOrder._id);
+    await this.props.completeUserOrder(
+      this.props.userOrder._id,
+      this.props.orders,
+    );
     this.props.navigation.navigate('Main', {
       screen: 'Profile',
     });
@@ -120,9 +128,9 @@ class CartScreen extends React.Component {
                   </Text>
                   <TextInput
                     style={modalStyles.textInput}
-                    value={quantity}
+                    value={quantity.toString()}
                     autoCompleteType="name"
-                    keyboardType="number-pad"
+                    keyboardType={'numeric'}
                     onChangeText={text =>
                       this.handleInputChange('quantity', text)
                     }
@@ -162,6 +170,7 @@ class CartScreen extends React.Component {
                     screen: 'CartScreen',
                   })
                 }
+                disabled={true}
                 style={homeStyles.cartButton}
               >
                 <FontAwesomeIcon icon={faBoxOpen} color={'#023047'} size={50} />
@@ -210,6 +219,7 @@ class CartScreen extends React.Component {
                                 editProductId: item._id,
                               });
                             }}
+                            disabled={isCompleteButtonDisabled}
                           >
                             <View style={homeStyles.editButtonIconSection}>
                               <FontAwesomeIcon
@@ -227,6 +237,7 @@ class CartScreen extends React.Component {
                           <TouchableOpacity
                             style={homeStyles.deleteButton}
                             onPress={() => this.handleProductRemoval(item._id)}
+                            disabled={isCompleteButtonDisabled}
                           >
                             <Image
                               source={require('../../assets/images/icons/error.png')}
@@ -263,11 +274,12 @@ class CartScreen extends React.Component {
 }
 
 const mapStateToProps = ({
-  product: { isLoading, cartLength, userOrder },
+  product: { isLoading, cartLength, userOrder, orders },
 }) => ({
   userOrder,
   isLoading,
   cartLength,
+  orders,
 });
 export default connect(
   mapStateToProps,

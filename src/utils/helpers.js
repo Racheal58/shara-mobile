@@ -5,6 +5,9 @@ const truncateString = (str, count) => {
 
 const errorHandler = error => {
   if (error.response) {
+    if (error.response.status === 402) {
+      return 'An error occured';
+    }
     return error.response.data.message;
   } else if (error.request) {
     return error.request;
