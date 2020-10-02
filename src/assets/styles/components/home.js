@@ -187,10 +187,10 @@ export default StyleSheet.create({
   imageStyle: { width: 75, height: 75, borderRadius: 100 },
   textSection: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     marginLeft: 4,
   },
-  userIcon: { marginTop: 25, marginLeft: 8 },
+  userIcon: { marginTop: 35, marginLeft: 4 },
   cartProductName: {
     fontFamily: 'Poppins-semi-bold',
     color: '#555',
